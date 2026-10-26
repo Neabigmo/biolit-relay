@@ -1,0 +1,103 @@
+# BioLit-Relay frozen rule lexicon (v1.0.0)
+#
+# Source of truth for the deterministic criterion-evidence layer.  The lexicon
+# is deliberately label-blind: it was written only from published eligibility
+# criteria (design pack docs 02/03 and the SYNERGY `datasets.toml` publication
+# metadata).  No inclusion/exclusion annotation was inspected while curating
+# the normalisation switches, negation cues or scoring weights.
+#
+# Change control: editing any cue, switch or weight requires bumping the
+# `lexicon_version` (and `rule_version` in configs/review_specs.yaml) and adding
+# a changelog entry.  The main experiment must run with this frozen version.
+schema_version: 1
+project: BioLit-Relay
+lexicon_version: "v1.0.0"
+curated_utc: "2026-10-26"
+curator: "BioLit-Relay rule-engineer"
+
+normalization:
+  lowercase: true
+  normalize_unicode: true # NFKC, applied per character to keep offsets exact
+  normalize_hyphens: true # U+2010..U+2015 and U+2212 -> ASCII '-'
+  collapse_whitespace: true
+  preserve_negation: true # negation words are never removed or rewritten
+  preserve_original_text_for_offsets: true
+  concat_title_abstract_with_single_space: true
+  apostrophe_variants_to_ascii: true
+  strip_outer_whitespace: true
+
+negation:
+  # Only the 5 tokens immediately before the matched phrase are inspected.
+  window_tokens_before: 5
+  cues:
+    - "not"
+    - "no"
+    - "without"
+    - "lack of"
+    - "lacked"
+    - "failed to"
+    - "non-"
+    - "absence of"
+    - "absent"
+    - "neither"
+    - "nor"
+    - "never"
+    - "excluded"
+    - "excluding"
+    - "except"
+    - "except for"
+    - "free of"
+    - "devoid of"
+    - "cannot"
+  exceptions:
+    - "not only"
+    - "no doubt"
+    - "not limited to"
+  policy: >-
+    Local, window-based negation only. A negated support cue is never turned
+    into CONTRADICT; when the local scope is ambiguous (comma, and/or, several
+    cues in scope) the evidence engine downgrades the hit instead of flipping
+    its polarity (MIXED or UNKNOWN). "non-" attached directly to the matched
+    phrase counts as negation.
+
+states:
+  - SUPPORT
+  - CONTRADICT
+  - UNKNOWN
+  - MIXED
+
+scoring:
+  # Q_i = clip(0.50*S_i + 0.30*U_i + 0.20*X_i, 0, 1)
+  support_weight: 0.50
+  unknown_weight: 0.30
+  mixed_weight: 0.20
+  # BioLitScore_i = 0.60*relevance_percentile + 0.40*criterion_risk_percentile
+  relevance_weight: 0.60
+  false_negative_risk_weight: 0.40
+  # Hard design constraints (validated by load_lexicon; do not enable):
+  unknown_is_exclusion: false
+  auto_exclude_records: false
+
+evidence:
+  store_sentence: true
+  store_char_offsets: true
+  store_rule_id: true
+  store_confidence_level: true
+  concatenated_text_contract: "title + ' ' + abstract (the empty side is omitted)"
+  minimum_evidence: >-
+    Every non-UNKNOWN state must carry an auditable matched phrase, the original
+    evidence sentence, start/end character offsets into the concatenated
+    original text, a stable rule_id and a confidence level.
+
+change_control:
+  rule_version_required: true
+  current_rule_version: "v1.0.0"
+  main_experiment_rules_frozen_before_results: true
+  posthoc_rule_changes_must_be_labeled_exploratory: true
+  changelog:
+    - version: "v1.0.0"
+      date: "2026-10-26"
+      change: >-
+        Initial frozen rule lexicon: normalisation switches, negation policy,
+        four evidence states, criterion weights 0.50/0.30/0.20 and relevance-risk
+        weights 0.60/0.40.

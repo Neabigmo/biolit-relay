@@ -1,0 +1,811 @@
+# BioLit-Relay frozen review specifications (rule version v1.0.0)
+#
+# Five SYNERGY v1.0 reviews operationalised into 2-6 eligibility-criterion
+# axes each.  The `eligibility_text` values are verbatim copies of the
+# published `eligibility_criteria` fields in the SYNERGY `datasets.toml`
+# (https://github.com/asreview/synergy-dataset/blob/master/datasets.toml,
+# fetched 2026-10-26).  `source_excerpt` values are verbatim fragments of that
+# text, so every rule is traceable to the publication.
+#
+# Label hygiene: cue curation used only (a) the published eligibility criteria,
+# (b) the BioLit-Relay design pack, and (c) general biomedical vocabulary.  No
+# inclusion/exclusion annotation, screening decision or label file was
+# inspected, and no cue was added after looking at any evaluation result.
+#
+# Change control: editing cues, axes, automation levels or eligibility text
+# requires a new `rule_version` and a changelog entry in configs/rule_lexicon.yaml.
+schema_version: 1
+project: BioLit-Relay
+rule_version: "v1.0.0"
+curated_utc: "2026-10-26"
+curator: "BioLit-Relay rule-engineer"
+source:
+  name: "SYNERGY - Open machine learning dataset on study selection in systematic reviews"
+  version: "1.0"
+  doi: "10.34894/HE6NAQ"
+  repository: "https://github.com/asreview/synergy-dataset"
+  eligibility_criteria_source: "https://raw.githubusercontent.com/asreview/synergy-dataset/master/datasets.toml (master branch, fetched 2026-10-26)"
+  note: >-
+    Expected record/inclusion counts are nominal design-planning estimates only;
+    recompute all counts from the pinned raw files (Lead-owned data adapter).
+
+reviews:
+  # -------------------------------------------------------------------------
+  # Jeyaraman_2020 - knee osteoarthritis / mesenchymal stem cells / RCT
+  # -------------------------------------------------------------------------
+  - id: "Jeyaraman_2020"
+    nominal_records: 1175
+    nominal_included: 96
+    topic: "Knee osteoarthritis; mesenchymal stem-cell therapy; randomized controlled trials"
+    source_reference: "https://doi.org/10.1177/1947603520951623"
+    rule_version: "v1.0.0"
+    eligibility_text: |
+      Inclusion Criteria
+      Studies were included for quantitative review if they met the following criteria:
+      Population: Patients with knee osteoarthritis
+      Intervention: MSC therapy
+      Comparator: Usual care
+      Outcomes: Visual Analog Score (VAS) for Pain, Western Ontario McMaster Universities Osteoarthritis Index (WOMAC), Lysholm Knee Scale (Lysholm), Whole-Organ Magnetic Resonance Imaging Score (WORMS), Knee Osteoarthritis Outcome Score (KOOS), and adverse events Study Design: Randomized controlled trials
+
+      Exclusion Criteria
+      Trials were excluded if they had the following characteristics:
+      1. Observational studies and interventional studies without a comparator group
+      2. Animal studies involving stem cell therapy for knee osteoarthritis models
+      3. Review articles and in-vitro studies involving stem cell therapy
+    criteria:
+      - id: "population"
+        name: "Knee osteoarthritis population"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "knee osteoarthritis"
+          - "osteoarthritis of the knee"
+          - "knee oa"
+          - "knee arthrosis"
+          - "gonarthrosis"
+          - "tibiofemoral osteoarthritis"
+          - "patellofemoral osteoarthritis"
+          - "knee joint osteoarthritis"
+        contradict_cues:
+          - "hip osteoarthritis"
+          - "hip oa"
+          - "hand osteoarthritis"
+          - "generalized osteoarthritis"
+        notes: >-
+          Only explicit non-knee joint sites are contradictions; silence about the
+          population is never a contradiction (UNKNOWN instead).
+        source_excerpt: "Population: Patients with knee osteoarthritis"
+      - id: "intervention"
+        name: "Mesenchymal stem-cell (MSC) therapy"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "mesenchymal stem cell"
+          - "mesenchymal stromal cell"
+          - "msc therapy"
+          - "msc treatment"
+          - "msc injection"
+          - "msc transplantation"
+          - "stem cell therapy"
+          - "stem cell treatment"
+          - "stem cell injection"
+          - "stem cell transplantation"
+          - "bone marrow-derived mesenchymal stem cell"
+          - "adipose-derived mesenchymal stem cell"
+          - "umbilical cord-derived mesenchymal stem cell"
+          - "synovial mesenchymal stem cell"
+          - "cell therapy"
+        contradict_cues:
+          - "without stem cell"
+          - "no stem cell"
+          - "no mesenchymal stem cell"
+          - "without mesenchymal stem cell"
+        notes: >-
+          Synonym expansion from the published intervention definition; the
+          comparator is a separate axis.
+        source_excerpt: "Intervention: MSC therapy"
+      - id: "comparator"
+        name: "Usual-care or eligible comparator"
+        required: true
+        automation_level: "LOW"
+        support_cues:
+          - "usual care"
+          - "standard care"
+          - "standard of care"
+          - "control group"
+          - "control arm"
+          - "placebo"
+          - "placebo-controlled"
+          - "sham"
+          - "comparator group"
+          - "compared with"
+          - "compared to"
+          - "versus"
+        contradict_cues:
+          - "single-arm"
+          - "single arm"
+          - "uncontrolled"
+          - "no comparator"
+          - "without a comparator"
+          - "non-comparative"
+        notes: >-
+          LOW: "usual care" is often absent from abstracts, so silence must stay
+          UNKNOWN and must never be treated as exclusion (design doc 03, section 5).
+        source_excerpt: "Comparator: Usual care ; Exclusion criteria 1: Observational studies and interventional studies without a comparator group"
+      - id: "outcome"
+        name: "Specified clinical outcome (VAS/WOMAC/Lysholm/WORMS/KOOS/adverse events)"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "vas"
+          - "visual analogue scale"
+          - "visual analog scale"
+          - "visual analogue pain"
+          - "visual analog pain"
+          - "womac"
+          - "western ontario mcmaster"
+          - "lysholm"
+          - "worms"
+          - "whole-organ magnetic resonance imaging score"
+          - "koos"
+          - "knee injury and osteoarthritis outcome score"
+          - "adverse event"
+          - "pain score"
+          - "knee score"
+        contradict_cues: []
+        notes: >-
+          The published outcome set is enumerated; a study reporting an unlisted
+          outcome is not contradicted by silence, hence no contradiction cues.
+        source_excerpt: "Outcomes: Visual Analog Score (VAS) for Pain, Western Ontario McMaster Universities Osteoarthritis Index (WOMAC), Lysholm Knee Scale (Lysholm), Whole-Organ Magnetic Resonance Imaging Score (WORMS), Knee Osteoarthritis Outcome Score (KOOS), and adverse events"
+      - id: "design"
+        name: "Randomized controlled trial"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "randomized controlled trial"
+          - "randomised controlled trial"
+          - "randomized trial"
+          - "randomised trial"
+          - "randomized controlled"
+          - "randomised controlled"
+          - "randomly assigned"
+          - "parallel-group"
+          - "rct"
+        contradict_cues:
+          - "observational study"
+          - "interventional study without a comparator group"
+          - "case report"
+          - "case series"
+          - "review article"
+          - "systematic review"
+          - "meta-analysis"
+          - "in vitro"
+          - "animal study"
+          - "animal model"
+          - "cohort study"
+          - "retrospective study"
+        notes: >-
+          RCT support is the strongest automation axis; the publication's
+          exclusion list supplies the contradiction vocabulary.
+        source_excerpt: "Study Design: Randomized controlled trials ; Exclusion criteria 1-3: Observational studies and interventional studies without a comparator group; Animal studies involving stem cell therapy for knee osteoarthritis models; Review articles and in-vitro studies involving stem cell therapy"
+
+  # -------------------------------------------------------------------------
+  # Meijboom_2021 - originator TNF-alpha inhibitor to biosimilar transition
+  # -------------------------------------------------------------------------
+  - id: "Meijboom_2021"
+    nominal_records: 882
+    nominal_included: 37
+    topic: "Transition from originator TNF-alpha inhibitors to biosimilars, including retransition counts"
+    source_reference: "https://doi.org/10.1007/s40259-021-00508-4"
+    rule_version: "v1.0.0"
+    eligibility_text: |
+      Only original research articles were included. Congress abstracts, reviews, editorials, and other opinion articles were excluded. 
+
+      Articles were included if they met the following criteria: (1) study involved transitioning from a TNFα inhibitor (including etanercept, infliximab, and adalimumab) originator to a biosimilar, (2) the number of patients who retransitioned was reported or could be calculated, (3) the article was an original research article published in a peer-reviewed journal, (4) the article included baseline characteristics of the patients who transitioned, (5) the article was written in English, and (6) the full-text version of the article could be obtained
+    criteria:
+      - id: "therapy_transition"
+        name: "Originator TNF inhibitor to biosimilar transition"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "tnf inhibitor"
+          - "tnf-alpha inhibitor"
+          - "tnf-α inhibitor"
+          - "tnfα inhibitor"
+          - "anti-tnf"
+          - "etanercept"
+          - "infliximab"
+          - "adalimumab"
+          - "originator"
+          - "biosimilar"
+          - "switch"
+          - "switching"
+          - "switched"
+          - "transition"
+          - "transitioning"
+          - "transitioned"
+        contradict_cues:
+          - "biosimilar-naive"
+          - "treatment-naive"
+          - "no switching"
+          - "not switched"
+          - "did not switch"
+          - "without switching"
+        notes: >-
+          Cues follow the design draft drug/transition vocabulary; explicit
+          "biosimilar-naive" designs are the only direct contradictions.
+        source_excerpt: "(1) study involved transitioning from a TNFα inhibitor (including etanercept, infliximab, and adalimumab) originator to a biosimilar"
+      - id: "retransition"
+        name: "Retransition count reported or calculable"
+        required: true
+        automation_level: "LOW"
+        support_cues:
+          - "retransition"
+          - "retransitioned"
+          - "retransitioning"
+          - "switch back"
+          - "switched back"
+          - "switching back"
+          - "switchback"
+          - "reverse switch"
+          - "back to originator"
+          - "reverted to originator"
+          - "returned to originator"
+        contradict_cues: []
+        notes: >-
+          LOW: retransition counts usually sit in full-text tables, so absence in an
+          abstract is UNKNOWN, never exclusion.
+        source_excerpt: "(2) the number of patients who retransitioned was reported or could be calculated"
+      - id: "original_study"
+        name: "Original research in a peer-reviewed journal"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "original research"
+          - "original article"
+          - "original study"
+          - "cohort study"
+          - "registry study"
+          - "registry-based"
+          - "observational study"
+          - "retrospective study"
+          - "prospective study"
+          - "real-world study"
+          - "clinical practice"
+          - "we conducted"
+          - "multicentre study"
+          - "multicenter study"
+          - "chart review"
+        contradict_cues:
+          - "review article"
+          - "systematic review"
+          - "narrative review"
+          - "literature review"
+          - "editorial"
+          - "commentary"
+          - "congress abstract"
+          - "conference abstract"
+          - "meta-analysis"
+          - "letter to the editor"
+          - "opinion article"
+        notes: >-
+          Peer-review status cannot be verified from an abstract; only explicit
+          publication-type cues are emitted.
+        source_excerpt: "(3) the article was an original research article published in a peer-reviewed journal"
+      - id: "baseline_characteristics"
+        name: "Baseline characteristics of transitioned patients reported"
+        required: true
+        automation_level: "LOW"
+        support_cues:
+          - "baseline characteristics"
+          - "baseline data"
+          - "patient characteristics"
+          - "demographic characteristics"
+          - "demographic data"
+          - "demographics"
+          - "baseline demographics"
+        contradict_cues: []
+        notes: >-
+          LOW: baseline tables are full-text material; only an explicit statement in
+          the abstract can support this axis.
+        source_excerpt: "(4) the article included baseline characteristics of the patients who transitioned"
+      - id: "language"
+        name: "Article written in English"
+        required: true
+        automation_level: "LOW"
+        support_cues: []
+        contradict_cues: []
+        notes: >-
+          LOW and deliberately cue-less: publication language is metadata, not
+          abstract content, so the state is always UNKNOWN (never exclusion).
+        source_excerpt: "(5) the article was written in English"
+      - id: "full_text"
+        name: "Full text obtainable"
+        required: true
+        automation_level: "LOW"
+        support_cues: []
+        contradict_cues: []
+        notes: >-
+          LOW and deliberately cue-less: full-text availability cannot be inferred
+          from the abstract; always UNKNOWN (design doc 03, section 2).
+        source_excerpt: "(6) the full-text version of the article could be obtained"
+
+  # -------------------------------------------------------------------------
+  # Muthu_2021 - spine surgery 1:1 parallel two-arm RCTs
+  # -------------------------------------------------------------------------
+  - id: "Muthu_2021"
+    nominal_records: 2719
+    nominal_included: 336
+    topic: "1:1 parallel two-arm randomized trials in spine surgery"
+    source_reference: "https://doi.org/10.1097/BRS.0000000000003645"
+    rule_version: "v1.0.0"
+    eligibility_text: |
+      Inclusion Criteria 
+
+      To be included in our study, a study should meet the following criteria:
+      1. The study should be an RCT with 1:1 parallel twoarm design.
+      2. The study must be related to spine surgery involving preoperative or intraoperative or postoperative variables.
+      3. The study must have a dichotomous primary or secondary outcome.
+
+      Exclusion Criteria
+      1. Studies not involving human subjects.
+      2. Studies with continuous variable outcomes like pain scores, Oswestry Disability Index scores, time to union without predefined clinical success criteria.
+      3. Studies that did not report a statistically significant primary or secondary outcome measure.
+    criteria:
+      - id: "design"
+        name: "1:1 parallel two-arm randomized controlled trial"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "randomized controlled trial"
+          - "randomised controlled trial"
+          - "randomized trial"
+          - "randomised trial"
+          - "randomized controlled"
+          - "randomised controlled"
+          - "randomized parallel"
+          - "randomised parallel"
+          - "parallel-group"
+          - "parallel group"
+          - "two-arm"
+          - "two arm"
+          - "1:1 allocation"
+          - "1:1 randomization"
+          - "1:1 randomisation"
+          - "1:1 parallel"
+          - "rct"
+        contradict_cues:
+          - "case report"
+          - "case series"
+          - "retrospective study"
+          - "observational study"
+          - "review article"
+          - "systematic review"
+          - "study protocol"
+          - "animal study"
+        notes: >-
+          The 1:1 parallel two-arm requirement is explicitly cued; a randomized
+          cross-over or superiority trial without the parallel wording may stay
+          under-supported rather than be contradicted.
+        source_excerpt: "1. The study should be an RCT with 1:1 parallel twoarm design."
+      - id: "spine_surgery"
+        name: "Spine surgery context"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "spine surgery"
+          - "spinal surgery"
+          - "spinal fusion"
+          - "lumbar fusion"
+          - "cervical fusion"
+          - "discectomy"
+          - "laminectomy"
+          - "laminoplasty"
+          - "foraminotomy"
+          - "vertebroplasty"
+          - "kyphoplasty"
+          - "spinal decompression"
+          - "scoliosis surgery"
+          - "cervical spine"
+          - "lumbar spine"
+          - "thoracolumbar"
+          - "spine"
+          - "spinal"
+        contradict_cues:
+          - "non-spine surgery"
+          - "cranial surgery"
+          - "cardiac surgery"
+          - "knee arthroplasty"
+          - "hip arthroplasty"
+          - "shoulder arthroplasty"
+        notes: >-
+          Spine vocabulary expanded beyond the design draft (laminoplasty,
+          kyphoplasty, foraminotomy, spinal decompression, ...) because the draft
+          list was too sparse for this large review; expansion is recorded here as
+          required by design doc 03, section 5.
+        source_excerpt: "2. The study must be related to spine surgery involving preoperative or intraoperative or postoperative variables."
+      - id: "perioperative_variable"
+        name: "Pre-, intra- or post-operative variable"
+        required: true
+        automation_level: "LOW"
+        support_cues:
+          - "preoperative"
+          - "pre-operative"
+          - "intraoperative"
+          - "intra-operative"
+          - "postoperative"
+          - "post-operative"
+          - "perioperative"
+          - "peri-operative"
+          - "operative time"
+          - "surgery duration"
+          - "duration of surgery"
+          - "blood loss"
+          - "length of stay"
+          - "hospital stay"
+          - "anaesthesia"
+          - "anesthesia"
+        contradict_cues: []
+        notes: >-
+          LOW: abstracts rarely label the variable set explicitly; only explicit
+          perioperative terms are emitted, silence is UNKNOWN.
+        source_excerpt: "2. ... involving preoperative or intraoperative or postoperative variables."
+      - id: "binary_outcome"
+        name: "Dichotomous primary or secondary outcome"
+        required: true
+        automation_level: "LOW"
+        support_cues:
+          - "binary outcome"
+          - "dichotomous outcome"
+          - "dichotomous"
+          - "binary"
+          - "complication rate"
+          - "success rate"
+          - "failure rate"
+          - "fusion rate"
+          - "reoperation rate"
+          - "revision rate"
+          - "infection rate"
+          - "incidence of complications"
+        contradict_cues:
+          - "continuous outcome"
+          - "continuous outcomes only"
+          - "continuous variable outcome"
+          - "continuous variable outcomes"
+          - "continuous-only outcome"
+        notes: >-
+          LOW: outcome measurement levels are often only in the full text; explicit
+          dichotomous or continuous-only wording is required.
+        source_excerpt: "3. The study must have a dichotomous primary or secondary outcome. ; Exclusion criteria 2: Studies with continuous variable outcomes like pain scores, Oswestry Disability Index scores, time to union without predefined clinical success criteria."
+      - id: "human"
+        name: "Human participants"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "patients"
+          - "participants"
+          - "human subjects"
+          - "in humans"
+          - "clinical trial"
+          - "human study"
+          - "volunteers"
+        contradict_cues:
+          - "animal study"
+          - "animal model"
+          - "animal experiment"
+          - "rats"
+          - "mice"
+          - "rabbit"
+          - "porcine"
+          - "canine"
+          - "cadaver"
+          - "cadaveric"
+          - "in vitro"
+          - "biomechanical study"
+          - "ovine"
+        notes: >-
+          Non-human evidence is explicit exclusion evidence from the publication
+          criteria; cadaveric and biomechanical studies are included in the
+          contradiction vocabulary.
+        source_excerpt: "Exclusion criteria 1: Studies not involving human subjects."
+      - id: "statistical_significance"
+        name: "Reports a statistically significant outcome"
+        required: true
+        automation_level: "LOW"
+        support_cues: []
+        contradict_cues: []
+        notes: >-
+          LOW and deliberately cue-less: design doc 03, section 5 forbids deciding
+          relevance from the presence or absence of the word "significant".
+          Explicit null-result sentences are only examined in the case audit, never
+          in automated scoring.
+        source_excerpt: "Exclusion criteria 3: Studies that did not report a statistically significant primary or secondary outcome measure."
+
+  # -------------------------------------------------------------------------
+  # van_der_Valk_2021 - hair glucocorticoids and obesity measures
+  # -------------------------------------------------------------------------
+  - id: "van_der_Valk_2021"
+    nominal_records: 725
+    nominal_included: 89
+    topic: "Cross-sectional associations between hair glucocorticoids (HairGC) and obesity measurements"
+    source_reference: "https://doi.org/10.1111/obr.13376"
+    rule_version: "v1.0.0"
+    eligibility_text: "We included studies that reported cross-sectional associations between HairGC and measurements of obesity. We excluded case reports, animal studies, review articles, non-English or nonpeer reviewed studies, and studies in which hair sampling and weight measurements were not performed simultaneously (Figure 1). Pediatric studies that only included children younger than age 2 years were also excluded because BMI-based definitions of obesity are not available for this age group"
+    criteria:
+      - id: "hair_gc"
+        name: "Hair glucocorticoid (HairGC) measurement"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "hair glucocorticoid"
+          - "hair gc"
+          - "hairgc"
+          - "hair cortisol"
+          - "hair cortisol concentration"
+          - "hair cortisone"
+          - "hair cortisone concentration"
+          - "hair cortisol and cortisone"
+          - "hair steroid"
+          - "hair sampling"
+        contradict_cues: []
+        notes: >-
+          HairGC covers hair cortisol and hair cortisone variants; the draft cue
+          list was expanded with cortisone/steroid/hair-sampling variants.
+        source_excerpt: "We included studies that reported cross-sectional associations between HairGC and measurements of obesity."
+      - id: "obesity_measure"
+        name: "Obesity-related measurement"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "obesity"
+          - "obese"
+          - "body mass index"
+          - "bmi"
+          - "adiposity"
+          - "waist circumference"
+          - "waist-to-hip ratio"
+          - "waist hip ratio"
+          - "body fat"
+          - "body fat percentage"
+          - "percent body fat"
+          - "body weight"
+          - "overweight"
+          - "fat mass"
+          - "adipose tissue"
+        contradict_cues: []
+        notes: >-
+          All anthropometric/obesity measures named or implied by the publication
+          are covered; no contradiction cues because absence is not exclusion.
+        source_excerpt: "measurements of obesity"
+      - id: "design"
+        name: "Cross-sectional association design (excluding case reports, animal and review studies)"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "cross-sectional"
+          - "cross-sectionally"
+        contradict_cues:
+          - "case report"
+          - "case series"
+          - "animal study"
+          - "animal model"
+          - "review article"
+          - "systematic review"
+          - "meta-analysis"
+          - "rats"
+          - "mice"
+          - "in vitro"
+        notes: >-
+          The publication's design/type exclusions are folded into this axis; only
+          cross-sectional wording supports it, silence is UNKNOWN.
+        source_excerpt: "We included studies that reported cross-sectional associations... We excluded case reports, animal studies, review articles, non-English or nonpeer reviewed studies..."
+      - id: "timing"
+        name: "Hair sampling and weight measurement performed simultaneously"
+        required: true
+        automation_level: "LOW"
+        support_cues:
+          - "measured simultaneously"
+          - "measured at the same time"
+          - "simultaneous measurement"
+          - "simultaneously measured"
+          - "concurrent measurement"
+          - "at the same time point"
+          - "same time point"
+          - "same day"
+        contradict_cues:
+          - "not measured simultaneously"
+          - "not simultaneously"
+          - "different time points"
+          - "not measured at the same time"
+        notes: >-
+          LOW: sampling timing is methods/full-text material and practically never
+          stated in abstracts, so the axis is UNKNOWN by default and must never be
+          treated as exclusion.
+        source_excerpt: "...studies in which hair sampling and weight measurements were not performed simultaneously (Figure 1)"
+      - id: "age_group"
+        name: "Population not limited to children younger than 2 years"
+        required: true
+        automation_level: "LOW"
+        support_cues:
+          - "adults"
+          - "adolescents"
+          - "school-aged children"
+          - "children aged"
+        contradict_cues:
+          - "newborn"
+          - "neonates"
+          - "infants"
+          - "children younger than 2"
+          - "children aged under 2"
+        notes: >-
+          LOW: age ranges are usually reported in full text; only explicit statements
+          are emitted, silence is UNKNOWN.
+        source_excerpt: "Pediatric studies that only included children younger than age 2 years were also excluded..."
+      - id: "language_peer_review"
+        name: "English-language, peer-reviewed publication"
+        required: true
+        automation_level: "LOW"
+        support_cues: []
+        contradict_cues: []
+        notes: >-
+          LOW and deliberately cue-less: language and peer-review status are
+          metadata, not abstract text; always UNKNOWN, never exclusion.
+        source_excerpt: "...non-English or nonpeer reviewed studies..."
+
+  # -------------------------------------------------------------------------
+  # Leenaars_2020 - methotrexate in rheumatoid arthritis (patients / animal models)
+  # -------------------------------------------------------------------------
+  - id: "Leenaars_2020"
+    nominal_records: 7216
+    nominal_included: 583
+    topic: "Efficacy of methotrexate in rheumatoid arthritis patients or RA animal models"
+    source_reference: "https://doi.org/10.3390/ani10061047"
+    rule_version: "v1.0.0"
+    eligibility_text: "We included all studies in which MTX was administered to RA patients or RA animal models in our ongoing review. We excluded studies on other diseases than RA, studies that were not in vivo, studies that did not administer MTX (or only had treatment groups co-administering MTX with other experimental drugs), studies that did not analyse efficacy (e.g., safety studies), and publications that did not contain new data (e.g., reviews and editorials)."
+    criteria:
+      - id: "disease"
+        name: "Rheumatoid arthritis"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "rheumatoid arthritis"
+          - "rheumatoid"
+          - "ra patient"
+          - "ra patients"
+          - "ra model"
+          - "ra models"
+          - "ra rat"
+          - "ra rats"
+          - "ra mouse"
+          - "ra mice"
+          - "collagen-induced arthritis"
+          - "collagen induced arthritis"
+          - "adjuvant-induced arthritis"
+          - "adjuvant induced arthritis"
+          - "pristane-induced arthritis"
+          - "pristane induced arthritis"
+        contradict_cues:
+          - "osteoarthritis"
+          - "psoriatic arthritis"
+          - "ankylosing spondylitis"
+          - "healthy volunteers"
+          - "healthy subjects"
+        notes: >-
+          Documented deviation from the draft: bare "RA" is not used as a cue
+          because in biomedical abstracts it also abbreviates retinoic acid, right
+          atrium, etc.; context-qualified RA phrases are used instead.
+        source_excerpt: "We included all studies in which MTX was administered to RA patients or RA animal models in our ongoing review. We excluded studies on other diseases than RA..."
+      - id: "drug"
+        name: "Methotrexate administration"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "methotrexate"
+          - "mtx"
+          - "methotrexate therapy"
+          - "methotrexate treatment"
+          - "methotrexate group"
+          - "mtx therapy"
+          - "mtx treatment"
+          - "mtx group"
+        contradict_cues:
+          - "without methotrexate"
+          - "no methotrexate"
+          - "methotrexate-free"
+          - "mtx-free"
+          - "not treated with methotrexate"
+          - "did not receive methotrexate"
+        notes: >-
+          The "only co-administered with other experimental drugs" exclusion is
+          nuanced; the engine records evidence but never auto-excludes on it
+          (design doc 03, section 9).
+        source_excerpt: "We included all studies in which MTX was administered to RA patients or RA animal models... studies that did not administer MTX (or only had treatment groups co-administering MTX with other experimental drugs)"
+      - id: "in_vivo"
+        name: "In-vivo study (human or animal)"
+        required: true
+        automation_level: "LOW"
+        support_cues:
+          - "in vivo"
+          - "animal model"
+          - "animal models"
+          - "in vivo study"
+          - "rats"
+          - "mice"
+          - "rabbits"
+          - "patients"
+          - "patient"
+          - "participants"
+          - "clinical study"
+        contradict_cues:
+          - "in vitro"
+          - "cell line"
+          - "cell culture"
+          - "cultured cells"
+          - "ex vivo"
+          - "synovial fibroblasts"
+          - "in silico"
+        notes: >-
+          LOW: in-vivo vs in-vitro is often but not always clear from abstracts;
+          explicit cues only.
+        source_excerpt: "We excluded ... studies that were not in vivo..."
+      - id: "efficacy"
+        name: "Efficacy outcome analysed"
+        required: true
+        automation_level: "LOW"
+        support_cues:
+          - "efficacy"
+          - "therapeutic effect"
+          - "therapeutic efficacy"
+          - "effective treatment"
+          - "disease activity"
+          - "clinical response"
+          - "treatment response"
+          - "joint swelling"
+          - "paw swelling"
+          - "arthritis severity"
+          - "ameliorated"
+          - "attenuated arthritis"
+          - "improved"
+        contradict_cues:
+          - "safety only"
+          - "safety and tolerability only"
+          - "toxicity only"
+          - "adverse effects only"
+          - "pharmacokinetic study"
+          - "pharmacokinetics only"
+        notes: >-
+          LOW: efficacy outcome analysis is usually a full-text judgement; only
+          explicit wording is emitted.
+        source_excerpt: "studies that did not analyse efficacy (e.g., safety studies)"
+      - id: "original_data"
+        name: "Original study with primary data"
+        required: true
+        automation_level: "MEDIUM"
+        support_cues:
+          - "original data"
+          - "original study"
+          - "we conducted"
+          - "we performed"
+          - "in this study"
+          - "primary data"
+          - "experimental study"
+          - "randomized trial"
+          - "randomized controlled trial"
+          - "cohort study"
+          - "case-control study"
+          - "prospective study"
+          - "retrospective study"
+          - "animal experiment"
+        contradict_cues:
+          - "review article"
+          - "systematic review"
+          - "narrative review"
+          - "meta-analysis"
+          - "editorial"
+          - "commentary"
+          - "letter"
+          - "consensus statement"
+        notes: >-
+          Reviews/editorials are explicit "no new data" evidence; the axis records
+          it but never deletes a record.
+        source_excerpt: "publications that did not contain new data (e.g., reviews and editorials)"

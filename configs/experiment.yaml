@@ -1,0 +1,174 @@
+schema_version: 1
+project: BioLit-Relay
+version: 1.0.0
+
+# ---------------------------------------------------------------------------
+# Data: pinned public SYNERGY v1.0 release (see data/manifests/raw_files_manifest.json)
+# ---------------------------------------------------------------------------
+data:
+  source: SYNERGY - Open machine learning dataset on study selection in systematic reviews
+  release: synergy-dataset-v1.0
+  doi: "10.34894/HE6NAQ"
+  repository: "https://github.com/asreview/synergy-dataset"
+  raw_dir: data/raw/synergy-v1.0
+  processed_dir: data/processed
+  oracle_dir: data/oracle
+  reviews:
+    - Jeyaraman_2020
+    - Meijboom_2021
+    - Muthu_2021
+    - van_der_Valk_2021
+    - Leenaars_2020
+
+# ---------------------------------------------------------------------------
+# Frozen simulation protocol (design doc 05)
+# ---------------------------------------------------------------------------
+protocol:
+  prior_included: 5
+  prior_excluded: 5
+  query_batch_size: 10
+  budget_fractions: [0.05, 0.10, 0.20, 0.30]
+  max_budget_fraction: 0.30
+  main_seeds: 10            # seeds 0..9, identical initial priors across methods
+  random_baseline_seeds: 20 # seeds 0..19 for M0 only
+  include_priors_in_budget: true
+  tie_break: record_id
+  low_prior_sensitivity:
+    enabled: true
+    prior_included: 2
+    prior_excluded: 2
+    methods: [matched_tfidf_logreg, biolit_relay]
+
+# ---------------------------------------------------------------------------
+# Methods under test (M0..M5 + pre-registered ablation/sensitivity variants)
+# ---------------------------------------------------------------------------
+methods:
+  main:
+    - random                  # M0
+    - matched_tfidf_logreg    # M1
+    - uncertainty_only        # M2
+    - criterion_only          # M3
+    - asreview_default        # M4 ELAS-u4 component reimplementation (not native ASReview)
+    - biolit_relay            # M5 full-fusion risk-biased re-ranking
+  ablations:
+    - biolit_relay_nounknown  # Q = 0.50 S + 0.50 X, UNKNOWN term removed
+    - biolit_relay_w50        # relevance/risk weights 0.50/0.50
+    - biolit_relay_w70        # relevance/risk weights 0.70/0.30
+  low_prior:
+    - matched_tfidf_logreg_prior2
+    - biolit_relay_prior2
+  hybrid:
+    - hybrid_relay           # Hybrid-Relay, 80/20 fixed quota
+    - hybrid_relay_90        # Hybrid-Relay, 90/10 fixed quota
+  control:
+    - biolit_relay_placebo   # criterion-score permutation placebo
+
+# ---------------------------------------------------------------------------
+# Scoring (frozen before the main experiment; see configs/rule_lexicon.yaml)
+# ---------------------------------------------------------------------------
+scoring:
+  criterion_support_weight: 0.50
+  criterion_unknown_weight: 0.30
+  criterion_mixed_weight: 0.20
+  relevance_weight: 0.60
+  false_negative_risk_weight: 0.40
+  unknown_is_exclusion: false
+  auto_exclude_records: false
+
+# ---------------------------------------------------------------------------
+# Relevance model (M1 relevance component, shared by M2/M4/M5 unless noted)
+# ---------------------------------------------------------------------------
+relevance_model:
+  name: tfidf_logreg
+  vectorizer:
+    lowercase: true
+    ngram_range: [1, 2]
+    min_df: 1
+    max_df: 1.0
+    sublinear_tf: true
+    strip_accents: unicode
+  classifier:
+    type: logistic_regression
+    max_iter: 1000
+    solver: liblinear
+    random_state: 0
+  retrain_each_round: true
+  fallback_if_single_class: constant_half
+
+# M4 = ELAS-u4 **component reimplementation** inside the shared harness.  This is
+# not a native ASReview run; the component configuration was verified against the
+# ASReview 3.0.8 source distribution (default preset: ELAS u4).
+asreview_default:
+  package: asreview
+  reference_version: "3.0.8"
+  model_preset: "ELAS u4 component reimplementation (not native ASReview)"
+  querier: max
+  batch_size: 10
+  classifier:
+    type: LinearSVC
+    loss: squared_hinge
+    C: 0.11
+    max_iter: 5000
+  balancer:
+    type: balanced
+    ratio: 9.8
+  feature_extractor:
+    type: tfidf
+    ngram_range: [1, 2]
+    sublinear_tf: true
+    min_df: 1
+    max_df: 0.95
+  note: >-
+    Re-instantiated inside the common simulation harness on the shared TF-IDF
+    representation (max_df=1.0) so priors, batch size, budget accounting and
+    feature space are identical across methods.  The ELAS u4 component preset is
+    used for component fidelity: this is an ELAS-u4 component reimplementation,
+    not a native ASReview run and not an evaluation of the ASReview platform.
+
+# ---------------------------------------------------------------------------
+# Metrics (design doc 05)
+# ---------------------------------------------------------------------------
+metrics:
+  primary: [recall_at_budget, aubrc_0_30]
+  secondary: [precision_at_budget, n_relevant_found, false_negative_rescue, wss_at_95, missing_abstract_recall]
+  aubrc:
+    interpolation: linear_between_batch_boundaries
+    integration: trapezoid
+    range: [0.0, 0.30]
+    normalise_by_range: true
+  wss_at_95:
+    target_recall: 0.95
+    extrapolate_if_not_reached: false
+
+# ---------------------------------------------------------------------------
+# Statistics (design doc 05)
+# ---------------------------------------------------------------------------
+statistics:
+  paired: true
+  bootstrap:
+    method: hierarchical_review_then_seed
+    n_resamples: 5000
+    confidence: 0.95
+    rng_seed: 20261026
+  report_each_review_separately: true
+  macro_average_first_per_review: true
+
+# ---------------------------------------------------------------------------
+# Reproducibility / outputs
+# ---------------------------------------------------------------------------
+outputs:
+  runs_dir: outputs/runs
+  tables_dir: outputs/tables
+  figures_dir: outputs/figures
+  evidence_dir: outputs/evidence_cards
+
+# ---------------------------------------------------------------------------
+# Hard constraints checked by tests and the runner
+# ---------------------------------------------------------------------------
+constraints:
+  no_test_label_tuning: true
+  report_all_failed_runs: true
+  rules_frozen_before_main_experiment: true
+  labels_only_in_oracle: true
+
+
